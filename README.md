@@ -1,4 +1,4 @@
-# 🚀 Skyhook
+# Skyhook
 
 > A secure, zero-config CLI file server with upload capabilities and encrypted transport
 

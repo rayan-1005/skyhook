@@ -25,7 +25,7 @@ pip install skyhook
 Or install from source:
 
 ```bash
-git clone https://github.com/skyhook/skyhook.git
+git clone https://github.com/rayan-1005/skyhook.git
 cd skyhook
 pip install -e .
 ```

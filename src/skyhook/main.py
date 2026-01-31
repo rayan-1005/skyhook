@@ -44,7 +44,7 @@ def serve(
         max=65535,
     ),
     host: str = typer.Option(
-        "0.0.0.0",
+        "localhost",
         "--host", "-h",
         help="Host interface to bind to",
     ),

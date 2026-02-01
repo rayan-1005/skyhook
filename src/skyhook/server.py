@@ -23,6 +23,30 @@ def format_size(size: int) -> str:
         size /= 1024.0
     return f"{size:.1f} PB"
 
+def get_file_icon(name):
+    """Return an SVG icon string based on file extension."""
+    ext = name.rsplit('.', 1)[-1].lower() if '.' in name else ''
+
+    icons = {
+        'image':    (['png','jpg','jpeg','gif','svg','webp'],
+                     '<svg class="file-icon image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>'),
+        'video':    (['mp4','webm','mkv','avi','mov'],
+                     '<svg class="file-icon video" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>'),
+        'audio':    (['mp3','wav','flac','ogg'],
+                     '<svg class="file-icon audio" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>'),
+        'archive':  (['zip','rar','7z','tar','gz'],
+                     '<svg class="file-icon archive" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/></svg>'),
+        'code':     (['js','ts','py','rb','go','rs','java','cpp','c','css','html','json','md'],
+                     '<svg class="file-icon code" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>'),
+        'document': (['pdf','doc','docx','txt','pptx','xlsx'],
+                     '<svg class="file-icon document" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>'),
+    }
+
+    for category, (extensions, svg) in icons.items():
+        if ext in extensions:
+            return svg
+
+    return '<svg class="file-icon default" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'
 
 class SkyhookServer:
     """Main Skyhook file server application."""
@@ -151,7 +175,9 @@ class SkyhookServer:
                 "current_path": path,
                 "breadcrumbs": breadcrumbs,
                 "auth_enabled": self.auth_manager.enabled,
-                "format_size": format_size
+                "format_size": format_size,
+                "get_file_icon": get_file_icon,
+                "serve_path": str(self.serve_path),
             }
         )
     

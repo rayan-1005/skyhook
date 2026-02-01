@@ -41,7 +41,7 @@ dev = [
 ]
 
 [project.scripts]
-skyhook = "skyhook.main:app"
+skyhook = "skyhook.main:main"
 
 [project.urls]
 Homepage = "https://github.com/skyhook/skyhook"

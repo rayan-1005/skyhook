@@ -47,8 +47,8 @@ def format_size(size: int) -> str:
 # Main command
 # -------------------------
 
-@app.command()
-def run(
+@app.callback(invoke_without_command=True)
+def main_command(
     path: Path = typer.Argument(
         Path("."),
         exists=True,
@@ -57,15 +57,15 @@ def run(
         resolve_path=True,
         help="Directory to serve",
     ),
-    host: str = typer.Option("127.0.0.1", "--host", "-h"),
-    port: int = typer.Option(8000, "--port", "-p"),
-    public: bool = typer.Option(False, help="Expose to network"),
-    auth: Optional[str] = typer.Option(None, "--auth", "-a"),
-    ssl: bool = typer.Option(False, "--ssl"),
-    no_upload: bool = typer.Option(False, help="Disable uploads"),
+    host: str = typer.Option("127.0.0.1", "--host", "-h", help="Bind address"),
+    port: int = typer.Option(8000, "--port", "-p", help="Port number"),
+    public: bool = typer.Option(True, help="Expose to network"),
+    auth: Optional[str] = typer.Option(None, "--auth", "-a", help="username:password"),
+    ssl: bool = typer.Option(False, "--ssl", help="Enable HTTPS"),
+    no_upload: bool = typer.Option(False, "--no-upload", help="Disable uploads"),
 ):
-    if public:
-        host = "0.0.0.0"
+
+    host = "0.0.0.0" if public else host
 
     username = None
     password = None
@@ -117,7 +117,7 @@ def run(
 
 @app.command()
 def version():
-    typer.echo("Skyhook v1.0.0")
+    typer.echo("Skyhook v1.0.2")
 
 
 # -------------------------
@@ -125,7 +125,7 @@ def version():
 # -------------------------
 
 def main():
-    app()
+    app(prog_name="skyhook")
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-# 🚀 Skyhook
+# 🪝 Skyhook
 
 > A secure, zero-config CLI file server with upload capabilities and encrypted transport
 
@@ -19,13 +19,13 @@ Skyhook is a modern replacement for `python -m http.server` with authentication,
 ### Installation
 
 ```bash
-pip install skyhook
+pip install skyhook-rayan
 ```
 
 Or install from source:
 
 ```bash
-git clone https://github.com/skyhook/skyhook.git
+git clone https://github.com/rayan-1005/skyhook.git
 cd skyhook
 pip install -e .
 ```
@@ -153,7 +153,7 @@ Options:
   --help                   Show this message and exit
 
 Commands:
-  serve    Start the file server (default command)
+  run    Start the file server (default command)
   version  Show Skyhook version
 ```
 
@@ -274,9 +274,9 @@ MIT License - see LICENSE file for details
 
 ## 📞 Support
 
-- Issues: [GitHub Issues](https://github.com/skyhook/skyhook/issues)
-- Documentation: [GitHub Wiki](https://github.com/skyhook/skyhook/wiki)
+- Issues: [GitHub Issues](https://github.com/rayan-1005/skyhook/issues)
+- Documentation: [GitHub Wiki](https://github.com/rayan-1005/skyhook/wiki)
 
 ---
 
-Made with ❤️ by the Skyhook team
+Made with ❤️ by the Rayan

@@ -404,14 +404,30 @@
                     {% for item in items %}
                     <tr data-name="{{ item.name|lower }}">
                         <td>
-                            <div class="file-name">
-                                <span class="file-icon">{{ '📁' if item.is_dir else '📄' }}</span>
-                                {% if item.is_dir %}
-                                <a href="/browse/{{ item.path }}" class="file-link">{{ item.name }}</a>
-                                {% else %}
-                                <span>{{ item.name }}</span>
-                                {% endif %}
-                            </div>
+                        <div class="file-name">
+                            <span class="file-icon">{{ '📁' if item.is_dir else '📄' }}</span>
+                        
+                            {% if item.is_dir %}
+                            <a href="/browse/{{ item.path }}" class="file-link">{{ item.name }}</a>
+                        
+                            {% else %}
+                        
+                            {% set ext = item.name.lower().split('.')[-1] %}
+                        
+                            {% if ext in ["mp3", "mp4"] %}
+                            <a href="/download/{{ item.path }}" class="file-link" target="_blank">
+                                {{ item.name }}
+                            </a>
+                        
+                            {% else %}
+                            <a href="/download/{{ item.path }}" class="file-link">
+                                {{ item.name }}
+                            </a>
+                            {% endif %}
+                        
+                            {% endif %}
+                        </div>
+
                         </td>
                         <td>{{ format_size(item.size) if not item.is_dir else '-' }}</td>
                         <td>{{ item.modified.strftime('%Y-%m-%d %H:%M') }}</td>

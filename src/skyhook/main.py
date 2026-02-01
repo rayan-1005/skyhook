@@ -2,6 +2,7 @@
 CLI entrypoint for Skyhook file server
 """
 
+import os
 from pathlib import Path
 from typing import Optional
 import socket
@@ -49,21 +50,16 @@ def format_size(size: int) -> str:
 
 @app.callback(invoke_without_command=True)
 def main_command(
-    path: Path = typer.Argument(
-        Path("."),
-        exists=True,
-        file_okay=False,
-        dir_okay=True,
-        resolve_path=True,
-        help="Directory to serve",
-    ),
-    host: str = typer.Option("127.0.0.1", "--host", "-h", help="Bind address"),
-    port: int = typer.Option(8000, "--port", "-p", help="Port number"),
-    public: bool = typer.Option(True, help="Expose to network"),
-    auth: Optional[str] = typer.Option(None, "--auth", "-a", help="username:password"),
-    ssl: bool = typer.Option(False, "--ssl", help="Enable HTTPS"),
-    no_upload: bool = typer.Option(False, "--no-upload", help="Disable uploads"),
+    path: Path = typer.Argument(None),
+    host: str = typer.Option("127.0.0.1", "--host", "-h"),
+    port: int = typer.Option(8000, "--port", "-p"),
+    public: bool = typer.Option(True),
+    auth: Optional[str] = typer.Option(None, "--auth", "-a"),
+    ssl: bool = typer.Option(False, "--ssl"),
+    no_upload: bool = typer.Option(False, "--no-upload"),
 ):
+    if path is None:
+        path = Path(os.getcwd())
 
     host = "0.0.0.0" if public else host
 
@@ -117,7 +113,7 @@ def main_command(
 
 @app.command()
 def version():
-    typer.echo("Skyhook v1.0.2")
+    typer.echo("Skyhook v1.1.0")
 
 
 # -------------------------

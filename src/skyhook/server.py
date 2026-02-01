@@ -58,6 +58,7 @@ class SkyhookServer:
         password: Optional[str] = None,
     ):
         self.serve_path = serve_path.resolve()
+        self.base_path = self.serve_path
         self.auth_manager = AuthManager(username, password)
         self.app = FastAPI(
             title="Skyhook File Server",
@@ -177,7 +178,7 @@ class SkyhookServer:
                 "auth_enabled": self.auth_manager.enabled,
                 "format_size": format_size,
                 "get_file_icon": get_file_icon,
-                "serve_path": str(self.serve_path),
+                "serve_path": str(self.base_path),
             }
         )
     
@@ -207,8 +208,7 @@ class SkyhookServer:
         
         return FileResponse(
             path=file_path,
-            media_type=mime_type,
-            filename=file_path.name,
+            media_type=mime_type
         )
     
     async def upload_files(

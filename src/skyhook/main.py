@@ -113,7 +113,7 @@ def main_command(
 
 @app.command()
 def version():
-    typer.echo("Skyhook v1.1.0")
+    typer.echo("Skyhook v1.1.1")
 
 
 # -------------------------

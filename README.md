@@ -16,6 +16,11 @@ Skyhook is a modern replacement for `python -m http.server` with authentication,
 
 ## 🚀 Quick Start
 
+```bash
+![PyPI](https://img.shields.io/pypi/v/skyhook-rayan)
+![Python](https://img.shields.io/pypi/pyversions/skyhook-rayan)
+```
+
 ### Installation
 
 ```bash

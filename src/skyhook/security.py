@@ -31,37 +31,37 @@ class AuthManager:
     ) -> bool:
         """Verify HTTP Basic Auth credentials."""
         if not self.enabled:
-          return True
+            return True
 
         if credentials is None:
             raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authentication required",
-            headers={"WWW-Authenticate": "Basic"},
-        )
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authentication required",
+                headers={"WWW-Authenticate": "Basic"},
+            )
 
         if not credentials.username or not credentials.password:
             raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authentication required",
-            headers={"WWW-Authenticate": "Basic"},
-        )
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authentication required",
+                headers={"WWW-Authenticate": "Basic"},
+            )
 
         username_correct = secrets.compare_digest(
-        credentials.username,
-        self.username
-    )
+            credentials.username,
+            self.username
+        )
         password_correct = secrets.compare_digest(
-        credentials.password,
-        self.password
-    )
+            credentials.password,
+            self.password
+        )
 
         if not (username_correct and password_correct):
             raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials",
-            headers={"WWW-Authenticate": "Basic"},
-        )
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid credentials",
+                headers={"WWW-Authenticate": "Basic"},
+            )
 
         return True
 

@@ -418,7 +418,12 @@
                             <a href="/download/{{ item.path }}" class="file-link" target="_blank">
                                 {{ item.name }}
                             </a>
-                        
+
+                            {% elif ext in ["md", "markdown", "json", "txt", "log", "png", "jpg", "jpeg", "gif", "svg", "webp"] %}
+                            <a href="/preview/{{ item.path }}" class="file-link">
+                                {{ item.name }}
+                            </a>
+
                             {% else %}
                             <a href="/download/{{ item.path }}" class="file-link">
                                 {{ item.name }}

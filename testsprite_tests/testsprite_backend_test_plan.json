@@ -1,0 +1,52 @@
+[
+  {
+    "id": "TC001",
+    "title": "get_root_directory_listing",
+    "description": "Test GET request to / endpoint to verify it returns a 200 status code with an HTML listing of the root directory."
+  },
+  {
+    "id": "TC002",
+    "title": "browse_subdirectory_listing",
+    "description": "Test GET request to /browse/{path} with a valid subdirectory path to verify it returns a 200 status code with an HTML listing of the specified directory."
+  },
+  {
+    "id": "TC003",
+    "title": "browse_path_traversal_block",
+    "description": "Test GET request to /browse/{path} with a path traversal attempt (e.g., ../../etc/passwd) to verify it returns a 403 response blocking path traversal."
+  },
+  {
+    "id": "TC004",
+    "title": "browse_nonexistent_directory",
+    "description": "Test GET request to /browse/{path} with a nonexistent directory path to verify it returns a 404 response."
+  },
+  {
+    "id": "TC005",
+    "title": "download_file_success",
+    "description": "Test GET request to /download/{path} with a valid file path to verify it returns a 200 FileResponse with the file contents."
+  },
+  {
+    "id": "TC006",
+    "title": "download_path_is_directory",
+    "description": "Test GET request to /download/{path} where the path is a directory to verify it returns a 400 response indicating the path is not a file."
+  },
+  {
+    "id": "TC007",
+    "title": "download_path_traversal_block",
+    "description": "Test GET request to /download/{path} with a path traversal attempt to verify it returns a 403 response blocking path traversal."
+  },
+  {
+    "id": "TC008",
+    "title": "download_file_not_found",
+    "description": "Test GET request to /download/{path} with a missing file path to verify it returns a 404 response indicating the file was not found."
+  },
+  {
+    "id": "TC009",
+    "title": "upload_files_success",
+    "description": "Test POST request to /upload with multipart form-data including files and optional valid path to verify it returns a 200 UploadResult confirming saved files."
+  },
+  {
+    "id": "TC010",
+    "title": "health_check_endpoint",
+    "description": "Test GET request to /health to verify it returns a 200 response with status and version fields indicating service availability."
+  }
+]

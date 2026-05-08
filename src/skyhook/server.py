@@ -1,5 +1,6 @@
 """FastAPI application for Skyhook file server."""
 
+import csv
 import html
 import json
 import mimetypes
@@ -62,13 +63,35 @@ def _normalize_request_path(path: str) -> str:
 
 
 _PREVIEWABLE_TEXT_EXTS: Set[str] = {
-    "txt",
+    "c",
+    "cfg",
+    "cpp",
+    "css",
+    "csv",
+    "go",
+    "h",
+    "html",
+    "ini",
+    "java",
+    "js",
+    "json",
+    "jsx",
+    "log",
     "md",
     "markdown",
-    "json",
-    "log",
+    "py",
+    "rs",
+    "sh",
+    "toml",
+    "ts",
+    "tsx",
+    "txt",
+    "yaml",
+    "yml",
 }
 _PREVIEWABLE_IMAGE_EXTS: Set[str] = {"png", "jpg", "jpeg", "gif", "svg", "webp"}
+_PREVIEWABLE_VIDEO_EXTS: Set[str] = {"mp4", "mov", "avi", "mkv", "webm"}
+_PREVIEWABLE_PDF_EXTS: Set[str] = {"pdf"}
 _MAX_PREVIEW_BYTES = 1024 * 1024
 
 
@@ -118,15 +141,90 @@ def _render_preview_page(title: str, body: str, download_href: str) -> HTMLRespo
   <meta charset=\"UTF-8\">
   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
   <title>{safe_title} - Preview</title>
-  <style>
-    body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: #f4f6fb; color: #1f2937; }}
-    .toolbar {{ display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: #111827; color: #fff; }}
-    .toolbar a {{ color: #fff; text-decoration: none; background: #2563eb; padding: 8px 14px; border-radius: 6px; }}
-    .content {{ padding: 24px; max-width: 960px; margin: 0 auto; }}
-    pre {{ background: #0f172a; color: #e2e8f0; padding: 16px; border-radius: 10px; overflow: auto; }}
-    code {{ font-family: 'Consolas', 'Courier New', monospace; }}
-    img {{ max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 12px 30px rgba(0,0,0,0.12); }}
-  </style>
+    <style>
+        :root {{
+            --base: #1e1e2e;
+            --mantle: #181825;
+            --crust: #11111b;
+            --surface0: #313244;
+            --surface1: #45475a;
+            --surface2: #585b70;
+            --text: #cdd6f4;
+            --subtext0: #a6adc8;
+            --subtext1: #bac2de;
+            --blue: #89b4fa;
+            --mauve: #cba6f7;
+            --teal: #94e2d5;
+        }}
+        body {{
+            font-family: 'DM Sans', 'Segoe UI', sans-serif;
+            margin: 0;
+            background: var(--crust);
+            color: var(--text);
+        }}
+        .toolbar {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background: linear-gradient(120deg, var(--mantle), var(--crust));
+            color: var(--text);
+            border-bottom: 1px solid var(--surface0);
+        }}
+        .toolbar a {{
+            color: var(--crust);
+            text-decoration: none;
+            background: var(--blue);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            box-shadow: 0 10px 24px rgba(137, 180, 250, 0.18);
+        }}
+        .content {{
+            padding: 24px;
+            max-width: 960px;
+            margin: 0 auto;
+        }}
+        pre {{
+            background: var(--mantle);
+            color: var(--text);
+            padding: 16px;
+            border-radius: 12px;
+            overflow: auto;
+            border: 1px solid var(--surface0);
+        }}
+        code {{ font-family: 'JetBrains Mono', 'Consolas', 'Courier New', monospace; }}
+        img {{
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 18px 40px rgba(17, 17, 27, 0.6);
+            border: 1px solid var(--surface0);
+        }}
+        table {{
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--base);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--surface0);
+        }}
+        th, td {{
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--surface0);
+            font-size: 13px;
+            text-align: left;
+            color: var(--subtext1);
+        }}
+        th {{
+            background: var(--surface0);
+            color: var(--text);
+            font-weight: 600;
+        }}
+        tbody tr:hover td {{ background: var(--surface1); color: var(--text); }}
+        tbody tr:last-child td {{ border-bottom: none; }}
+        a {{ color: var(--mauve); }}
+    </style>
 </head>
 <body>
   <div class=\"toolbar\">
@@ -137,7 +235,10 @@ def _render_preview_page(title: str, body: str, download_href: str) -> HTMLRespo
 </body>
 </html>"""
     response = HTMLResponse(html_doc)
-    response.headers["Content-Security-Policy"] = "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'"
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; img-src 'self' data:; media-src 'self'; "
+        "frame-src 'self'; style-src 'self' 'unsafe-inline'"
+    )
     return response
 
 class SkyhookServer:
@@ -196,6 +297,14 @@ class SkyhookServer:
         ):
             """Download a specific file."""
             return await self.download_file(path)
+
+        @self.app.get("/raw/{path:path}")
+        async def raw(
+            path: str,
+            authorized: bool = Depends(self.auth_manager.verify_credentials),
+        ):
+            """Serve a file inline for previews."""
+            return await self.raw_file(path)
 
         @self.app.get("/preview/{path:path}", response_class=HTMLResponse)
         async def preview(
@@ -330,6 +439,40 @@ class SkyhookServer:
             media_type=mime_type,
             filename=file_path.name,
         )
+
+    async def raw_file(self, path: str) -> FileResponse:
+        """Serve a file inline for previews."""
+        normalized_path = _normalize_request_path(path)
+        if normalized_path in _TEST_FIXTURE_DIRS:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="File not found",
+            )
+        try:
+            file_path = sanitize_path(self.serve_path, path)
+        except HTTPException:
+            raise
+
+        if not file_path.exists():
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="File not found"
+            )
+
+        if not file_path.is_file():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Path is not a file"
+            )
+
+        mime_type, _ = mimetypes.guess_type(str(file_path))
+        if mime_type is None:
+            mime_type = "application/octet-stream"
+
+        return FileResponse(
+            path=file_path,
+            media_type=mime_type,
+        )
     
     async def upload_files(
         self, files: List[UploadFile], path: str = ""
@@ -414,9 +557,27 @@ class SkyhookServer:
 
         extension = _get_extension(file_path.name)
         download_href = f"/download/{path}"
+        raw_href = f"/raw/{path}"
 
         if extension in _PREVIEWABLE_IMAGE_EXTS:
-            body = f"<img src=\"{html.escape(download_href)}\" alt=\"{html.escape(file_path.name)}\">"
+            body = f"<img src=\"{html.escape(raw_href)}\" alt=\"{html.escape(file_path.name)}\">"
+            return _render_preview_page(file_path.name, body, download_href)
+
+        if extension in _PREVIEWABLE_VIDEO_EXTS:
+            body = (
+                "<video controls style=\"width: 100%; max-width: 960px; border-radius: 12px; box-shadow: 0 12px 30px rgba(0,0,0,0.12);\">"
+                f"<source src=\"{html.escape(raw_href)}\">"
+                "Your browser does not support the video tag."
+                "</video>"
+            )
+            return _render_preview_page(file_path.name, body, download_href)
+
+        if extension in _PREVIEWABLE_PDF_EXTS:
+            body = (
+                "<iframe src=\""
+                + html.escape(raw_href)
+                + "\" style=\"width: 100%; height: 80vh; border: 0; border-radius: 12px; box-shadow: 0 12px 30px rgba(0,0,0,0.12);\"></iframe>"
+            )
             return _render_preview_page(file_path.name, body, download_href)
 
         if extension not in _PREVIEWABLE_TEXT_EXTS:
@@ -447,6 +608,27 @@ class SkyhookServer:
                 text = json.dumps(parsed, indent=2, ensure_ascii=False)
             except json.JSONDecodeError:
                 pass
+
+        if extension == "csv":
+            reader = csv.reader(text.splitlines())
+            rows = []
+            for idx, row in enumerate(reader):
+                if idx >= 200:
+                    break
+                rows.append([html.escape(cell) for cell in row[:20]])
+
+            if rows:
+                header = rows[0]
+                body_rows = rows[1:]
+                header_html = "".join(f"<th>{cell or '&nbsp;'}</th>" for cell in header)
+                body_html = "".join(
+                    "<tr>" + "".join(f"<td>{cell or '&nbsp;'}</td>" for cell in row) + "</tr>"
+                    for row in body_rows
+                )
+                body = f"<table><thead><tr>{header_html}</tr></thead><tbody>{body_html}</tbody></table>"
+            else:
+                body = "<p>No CSV content to preview.</p>"
+            return _render_preview_page(file_path.name, body, download_href)
 
         if extension in {"md", "markdown"}:
             rendered = markdown.markdown(text, extensions=["extra", "sane_lists"])

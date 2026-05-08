@@ -1,15 +1,20 @@
 import requests
 
+BASE_URL = "http://localhost:8000"
+
+
 def test_download_file_not_found():
-    base_url = "http://localhost:8000"
-    missing_file_path = "nonexistent_file_1234567890.txt"
-    url = f"{base_url}/download/{missing_file_path}"
+    missing_file_path = "nonexistent/path/to/missing_file.txt"
+    url = f"{BASE_URL}/download/{missing_file_path}"
 
     try:
         response = requests.get(url, timeout=30)
     except requests.RequestException as e:
-        assert False, f"Request to {url} failed with exception: {e}"
+        assert False, f"Request failed: {e}"
 
-    assert response.status_code == 404, f"Expected 404 status code for missing file, got {response.status_code} instead."
+    assert response.status_code == 404, f"Expected status code 404, got {response.status_code}"
+    # Optionally, check text or json message if server provides any
+    # but it is not specified, so checking status code is sufficient
+
 
 test_download_file_not_found()

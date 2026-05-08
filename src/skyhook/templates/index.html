@@ -1,362 +1,526 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Skyhook File Server</title>
+    <title>Skyhook — File Server</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=DM+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --base:      #1e1e2e;
+            --mantle:    #181825;
+            --crust:     #11111b;
+            --surface0:  #313244;
+            --surface1:  #45475a;
+            --surface2:  #585b70;
+            --overlay0:  #6c7086;
+            --overlay1:  #7f849c;
+            --overlay2:  #9399b2;
+            --subtext0:  #a6adc8;
+            --subtext1:  #bac2de;
+            --text:      #cdd6f4;
+            --lavender:  #b4befe;
+            --blue:      #89b4fa;
+            --sapphire:  #74c7ec;
+            --sky:       #89dceb;
+            --teal:      #94e2d5;
+            --green:     #a6e3a1;
+            --yellow:    #f9e2af;
+            --peach:     #fab387;
+            --maroon:    #eba0ac;
+            --red:       #f38ba8;
+            --mauve:     #cba6f7;
+            --pink:      #f5c2e7;
         }
 
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'DM Sans', system-ui, sans-serif;
+            background: var(--crust);
             min-height: 100vh;
-            padding: 20px;
+            padding: 28px 20px;
+            color: var(--text);
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1080px;
             margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            background: var(--base);
+            border-radius: 18px;
+            border: 1px solid var(--surface0);
+            overflow: hidden;
+            box-shadow: 0 32px 96px rgba(0,0,0,0.7), 0 0 0 1px rgba(203,166,247,0.04);
+        }
+
+        /* ════ HEADER ════ */
+        header {
+            background: var(--mantle);
+            border-bottom: 1px solid var(--surface0);
+            padding: 28px 36px 22px;
+            position: relative;
             overflow: hidden;
         }
 
-        header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-        }
-
-        h1 {
-            font-size: 28px;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .breadcrumb {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            opacity: 0.9;
-            flex-wrap: wrap;
-        }
-
-        .breadcrumb a {
-            color: white;
-            text-decoration: none;
-            transition: opacity 0.2s;
-        }
-
-        .breadcrumb a:hover {
-            opacity: 0.8;
-            text-decoration: underline;
-        }
-
-        .search-upload-container {
-            padding: 20px 30px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .search-box {
-            flex: 1;
-            min-width: 200px;
-            position: relative;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 12px 40px 12px 16px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .search-icon {
+        header::after {
+            content: '';
             position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6c757d;
+            top: -80px; right: -80px;
+            width: 320px; height: 320px;
+            background: radial-gradient(circle, rgba(203,166,247,0.07) 0%, transparent 65%);
+            pointer-events: none;
         }
 
-        .upload-button {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
+        .header-inner {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
-        .upload-button:hover {
-            background: #5568d3;
-            transform: translateY(-1px);
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 16px;
         }
 
-        .drop-zone {
-            margin: 30px;
-            border: 3px dashed #dee2e6;
-            border-radius: 12px;
-            padding: 60px 20px;
-            text-align: center;
-            background: #f8f9fa;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-
-        .drop-zone.drag-over {
-            border-color: #667eea;
-            background: #e7f0ff;
-        }
-
-        .drop-zone-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
-
-        .drop-zone-text {
-            font-size: 16px;
-            color: #6c757d;
-            margin-bottom: 8px;
-        }
-
-        .drop-zone-hint {
-            font-size: 13px;
-            color: #adb5bd;
-        }
-
-        .file-table-container {
-            padding: 30px;
-            overflow-x: auto;
-        }
         .logo-wrapper {
-            width: 48px;
-            height: 48px;
+            width: 50px;
+            height: 50px;
             background: var(--surface0);
             border: 1px solid var(--surface1);
-            border-radius: 12px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
         }
 
-        .title-group {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
+        .title-group { display: flex; flex-direction: column; gap: 4px; }
+
+        h1 {
+            font-family: 'Georgia', 'Palatino Linotype', 'Book Antiqua', serif;
+            font-size: 29px;
+            font-weight: 400;
+            color: var(--text);
+            letter-spacing: -0.4px;
+            line-height: 1.1;
         }
+
+        h1 .dot { color: var(--mauve); }
 
         .dir-path {
-            color: var(--overlay0);
-            font-size: 20px;
-            font-family: 'Consolas', 'Courier New', monospace;
+            color: var(--overlay1);
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
             word-break: break-all;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
 
-        thead {
-            background: #f8f9fa;
-        }
-
-        th {
-            text-align: left;
-            padding: 12px 16px;
-            font-weight: 600;
-            font-size: 13px;
-            color: #495057;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        tbody tr {
-            border-bottom: 1px solid #f1f3f5;
-            transition: background 0.2s;
-        }
-
-        tbody tr:hover {
-            background: #f8f9fa;
-        }
-
-        td {
-            padding: 16px;
-            font-size: 14px;
-            color: #495057;
-        }
-
-        .file-name {
+        /* breadcrumb */
+        .breadcrumb {
             display: flex;
             align-items: center;
-            gap: 10px;
-        }
-
-        .file-icon {
-            font-size: 20px;
-        }
-
-        .file-link {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-
-        .file-link:hover {
-            color: #5568d3;
-            text-decoration: underline;
-        }
-
-        .download-button {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
+            gap: 2px;
             font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            flex-wrap: wrap;
+        }
+
+        .breadcrumb a {
+            color: var(--overlay2);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 5px;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .breadcrumb a:hover { background: var(--surface0); color: var(--lavender); }
+        .breadcrumb .sep { color: var(--surface2); padding: 0 2px; user-select: none; }
+
+        .breadcrumb .crumb-current {
+            color: var(--subtext1);
+            padding: 3px 8px;
+            background: var(--surface0);
+            border-radius: 5px;
+        }
+
+        /* ════ TOOLBAR ════ */
+        .toolbar {
+            padding: 14px 36px;
+            background: var(--base);
+            border-bottom: 1px solid var(--surface0);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-wrap { flex: 1; min-width: 200px; position: relative; }
+
+        .search-wrap input {
+            width: 100%;
+            padding: 9px 38px 9px 36px;
+            background: var(--mantle);
+            border: 1px solid var(--surface1);
+            border-radius: 9px;
+            font-size: 13px;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text);
+            outline: none;
+            transition: border-color 0.18s, box-shadow 0.18s;
+        }
+
+        .search-wrap input::placeholder { color: var(--overlay0); }
+
+        .search-wrap input:focus {
+            border-color: var(--mauve);
+            box-shadow: 0 0 0 3px rgba(203,166,247,0.1);
+        }
+
+        .search-icon-left {
+            position: absolute; left: 11px; top: 50%;
+            transform: translateY(-50%);
+            color: var(--overlay0); pointer-events: none; display: flex;
+        }
+
+        .search-clear {
+            position: absolute; right: 10px; top: 50%;
+            transform: translateY(-50%);
+            color: var(--overlay0); cursor: pointer;
+            display: none; background: none; border: none;
+            padding: 2px; border-radius: 4px; line-height: 1;
+        }
+
+        .search-clear:hover { color: var(--text); }
+        .search-clear.visible { display: flex; }
+
+        .result-count {
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--overlay0);
+            white-space: nowrap;
+            min-width: 56px;
+        }
+
+        .sort-group {
+            display: flex;
+            gap: 4px;
+            border-left: 1px solid var(--surface0);
+            padding-left: 10px;
+        }
+
+        .sort-btn {
+            background: none;
+            border: 1px solid var(--surface1);
+            color: var(--overlay1);
+            padding: 6px 11px;
+            border-radius: 7px;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.15s;
         }
 
-        .download-button:hover {
-            background: #218838;
+        .sort-btn:hover { background: var(--surface0); color: var(--text); }
+
+        .sort-btn.active {
+            background: var(--surface0);
+            color: var(--mauve);
+            border-color: var(--surface2);
         }
 
-        .empty-state {
+        .btn-upload {
+            background: var(--mauve);
+            color: var(--crust);
+            border: none;
+            padding: 9px 18px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: background 0.18s, transform 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .btn-upload:hover { background: var(--lavender); transform: translateY(-1px); }
+        .btn-upload:active { transform: translateY(0); }
+
+        /* ════ DROP ZONE ════ */
+        .drop-zone {
+            margin: 20px 36px;
+            border: 1.5px dashed var(--surface1);
+            border-radius: 12px;
+            padding: 36px 20px;
             text-align: center;
-            padding: 60px 20px;
-            color: #6c757d;
+            background: var(--mantle);
+            transition: border-color 0.2s, background 0.2s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }
 
-        .empty-state-icon {
-            font-size: 64px;
-            margin-bottom: 20px;
-            opacity: 0.3;
+        .drop-zone::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at center, rgba(203,166,247,0.06) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
         }
 
+        .drop-zone:hover, .drop-zone.drag-over {
+            border-color: var(--mauve);
+        }
+
+        .drop-zone:hover::before, .drop-zone.drag-over::before { opacity: 1; }
+
+        .dz-icon {
+            display: flex; justify-content: center;
+            margin-bottom: 10px; color: var(--overlay1);
+            transition: color 0.2s, transform 0.2s;
+        }
+
+        .drop-zone:hover .dz-icon, .drop-zone.drag-over .dz-icon {
+            color: var(--mauve); transform: translateY(-3px);
+        }
+
+        .dz-icon svg { width: 34px; height: 34px; }
+        .dz-text { font-size: 14px; color: var(--subtext0); font-weight: 500; margin-bottom: 4px; }
+        .dz-hint { font-size: 11px; color: var(--overlay0); font-family: 'JetBrains Mono', monospace; }
+
+        /* ════ UPLOAD PROGRESS ════ */
         .upload-progress {
-            margin: 20px 30px;
-            padding: 20px;
-            background: #e7f0ff;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
+            margin: 0 36px 16px;
+            padding: 14px 18px;
+            background: var(--mantle);
+            border-radius: 10px;
+            border: 1px solid var(--surface1);
+            border-left: 3px solid var(--mauve);
             display: none;
         }
 
-        .upload-progress.active {
-            display: block;
+        .upload-progress.active { display: block; }
+
+        #uploadStatus {
+            font-size: 12px; font-family: 'JetBrains Mono', monospace;
+            color: var(--subtext1); margin-bottom: 8px;
         }
 
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #dee2e6;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
+        .progress-bar { width: 100%; height: 5px; background: var(--surface0); border-radius: 99px; overflow: hidden; }
 
         .progress-fill {
             height: 100%;
-            background: #667eea;
-            transition: width 0.3s;
+            background: linear-gradient(90deg, var(--mauve), var(--blue));
+            border-radius: 99px;
+            transition: width 0.25s ease;
+        }
+
+        /* ════ FILE TABLE ════ */
+        .file-table-container { padding: 0 36px 36px; overflow-x: auto; }
+
+        .stats-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0 13px;
+            border-bottom: 1px solid var(--surface0);
+            margin-bottom: 2px;
+        }
+
+        .stat-pill {
+            display: inline-flex; align-items: center; gap: 5px;
+            background: var(--surface0); padding: 3px 9px;
+            border-radius: 99px; font-size: 11px; color: var(--subtext0);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .stat-pill svg { width: 11px; height: 11px; }
+
+        table { width: 100%; border-collapse: collapse; }
+        thead tr { border-bottom: 1px solid var(--surface0); }
+
+        th {
+            text-align: left; padding: 10px 14px;
+            font-size: 10px; font-weight: 500;
+            color: var(--overlay0); text-transform: uppercase;
+            letter-spacing: 1.2px; font-family: 'DM Sans', sans-serif;
+            user-select: none;
+        }
+
+        th.sortable { cursor: pointer; transition: color 0.15s; }
+        th.sortable:hover { color: var(--subtext1); }
+        th.sortable.asc::after  { content: ' ↑'; color: var(--mauve); }
+        th.sortable.desc::after { content: ' ↓'; color: var(--mauve); }
+
+        tbody tr {
+            border-bottom: 1px solid rgba(49,50,68,0.5);
+            transition: background 0.12s;
+        }
+
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: rgba(49,50,68,0.6); }
+
+        td { padding: 11px 14px; font-size: 13px; color: var(--subtext1); vertical-align: middle; }
+
+        .file-name { display: flex; align-items: center; gap: 10px; }
+
+        .file-icon {
+            width: 30px; height: 30px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+
+        .file-icon svg { width: 15px; height: 15px; }
+
+        .file-icon.is-dir  { background: rgba(137,180,250,0.12); color: var(--blue); }
+        .file-icon.is-file { background: rgba(166,227,161,0.10); color: var(--green); }
+        .file-icon.is-img  { background: rgba(250,179,135,0.12); color: var(--peach); }
+        .file-icon.is-vid  { background: rgba(243,139,168,0.10); color: var(--red); }
+        .file-icon.is-arc  { background: rgba(249,226,175,0.10); color: var(--yellow); }
+        .file-icon.is-code { background: rgba(148,226,213,0.10); color: var(--teal); }
+        .file-icon.is-pdf  { background: rgba(235,160,172,0.12); color: var(--maroon); }
+
+        .file-link {
+            color: var(--text); text-decoration: none;
+            font-weight: 500; font-size: 13.5px; transition: color 0.15s;
+        }
+
+        .file-link:hover { color: var(--mauve); }
+
+        .ext-badge {
+            font-size: 10px; font-family: 'JetBrains Mono', monospace;
+            color: var(--overlay0); background: var(--surface0);
+            padding: 1px 5px; border-radius: 4px; letter-spacing: 0.5px;
+        }
+
+        td.col-size, td.col-date {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11.5px; color: var(--overlay1); white-space: nowrap;
+        }
+
+        .btn-dl {
+            background: transparent; color: var(--overlay1);
+            border: 1px solid var(--surface1); padding: 5px 11px;
+            border-radius: 7px; font-size: 11px; font-family: 'DM Sans', sans-serif;
+            cursor: pointer; transition: all 0.15s;
+            display: inline-flex; align-items: center; gap: 5px;
+            text-decoration: none;
+        }
+
+        .btn-dl svg { width: 12px; height: 12px; }
+
+        .btn-dl:hover {
+            background: var(--blue); color: var(--crust); border-color: var(--blue);
+        }
+
+        /* empty state */
+        .empty-state { text-align: center; padding: 80px 20px; }
+
+        .empty-state-icon { display: flex; justify-content: center; margin-bottom: 18px; color: var(--surface2); }
+        .empty-state-icon svg { width: 52px; height: 52px; }
+
+        .empty-state h3 {
+            font-family: 'Georgia', 'Palatino Linotype', serif;
+            font-size: 22px; font-weight: 400; color: var(--overlay1); margin-bottom: 6px;
+        }
+
+        .empty-state p { font-size: 13px; color: var(--overlay0); font-family: 'JetBrains Mono', monospace; }
+
+        /* scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--mantle); }
+        ::-webkit-scrollbar-thumb { background: var(--surface1); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--surface2); }
+
+        /* toasts */
+        .toast-wrap { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 9999; }
+
+        .toast {
+            background: var(--surface0); border: 1px solid var(--surface1);
+            border-radius: 10px; padding: 12px 16px; font-size: 13px;
+            font-family: 'DM Sans', sans-serif; color: var(--text);
+            display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            animation: slideUp 0.2s ease;
+            min-width: 220px;
+        }
+
+        .toast.success { border-left: 3px solid var(--green); }
+        .toast.error   { border-left: 3px solid var(--red); }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
         @media (max-width: 768px) {
-            .container {
-                border-radius: 0;
-            }
-
-            header {
-                padding: 20px;
-            }
-
-            h1 {
-                font-size: 22px;
-            }
-
-            .file-table-container {
-                padding: 15px;
-            }
-
-            th,
-            td {
-                padding: 10px;
-                font-size: 13px;
-            }
-
-            .drop-zone {
-                margin: 15px;
-                padding: 40px 15px;
-            }
+            body { padding: 0; }
+            .container { border-radius: 0; border: none; }
+            header { padding: 18px; }
+            .toolbar, .file-table-container { padding-left: 16px; padding-right: 16px; }
+            .drop-zone { margin: 14px 16px; padding: 28px 14px; }
+            .upload-progress { margin-left: 16px; margin-right: 16px; }
+            .sort-group { display: none; }
+            th, td { padding: 9px 10px; }
+            .ext-badge { display: none; }
         }
     </style>
 </head>
-
 <body>
-    <div class="container">
+
+<div class="container">
+
+    <!-- HEADER -->
     <header>
-        <div class="header-content">
+        <div class="header-inner">
             <div class="header-title">
                 <div class="logo-wrapper">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="url(#rocketGradient)"
-                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <!-- Anchor / Hook icon — fits "Skyhook" perfectly -->
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+                        stroke="url(#anchorGrad)" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round"
+                        xmlns="http://www.w3.org/2000/svg">
                         <defs>
-                            <linearGradient id="rocketGradient" x1="0%" y1="100%" x2="100%" y2="0%">
-                                <stop offset="0%" stop-color="#cba6f7" />
-                                <stop offset="100%" stop-color="#b4befe" />
+                            <linearGradient id="anchorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#cba6f7"/>
+                                <stop offset="100%" stop-color="#89b4fa"/>
                             </linearGradient>
                         </defs>
-                        <path d="M6.5 6.5a5 10 45 0 1 11 11" />
-                        <path d="M21 3 C21 3 15 3 9.5 8.5S3 21 3 21s13-3 18.5-8.5S21 3 21 3z" />
-                        <circle cx="15.5" cy="8.5" r="1.5" fill="url(#rocketGradient)" stroke="none" />
-                        <path d="M16 21l-1-4" opacity="0.6" />
-                        <path d="M21 16l-4-1" opacity="0.6" />
+                        <circle cx="12" cy="5" r="2"/>
+                        <line x1="12" y1="7" x2="12" y2="19"/>
+                        <line x1="7" y1="10" x2="17" y2="10"/>
+                        <path d="M7 19 C7 22 4 22 4 19"/>
+                        <path d="M17 19 C17 22 20 22 20 19"/>
                     </svg>
                 </div>
                 <div class="title-group">
-                    <h1>Skyhook</h1>
+                    <h1>Skyhook<span class="dot">.</span></h1>
                     <p class="dir-path">{{ serve_path }}</p>
                 </div>
             </div>
-            <nav class="breadcrumb" id="breadcrumb">
+
+            <nav class="breadcrumb" aria-label="Directory breadcrumb">
                 <a href="/">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                        <polyline points="9 22 9 12 15 12 15 22" />
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
                     </svg>
-                    Home
+                    home
                 </a>
                 {% for crumb in breadcrumbs %}
-                <span class="separator">›</span>
+                <span class="sep" aria-hidden="true">›</span>
                 {% if crumb == breadcrumbs[-1] %}
-                <span class="current">{{ crumb.name }}</span>
+                <span class="crumb-current">{{ crumb.name }}</span>
                 {% else %}
                 <a href="/browse/{{ crumb.path }}">{{ crumb.name }}</a>
                 {% endif %}
@@ -365,194 +529,352 @@
         </div>
     </header>
 
-        <div class="search-upload-container">
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Search files and folders...">
-                <span class="search-icon">🔍</span>
-            </div>
-            <button class="upload-button" onclick="document.getElementById('fileInput').click()">
-                📤 Upload Files
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+        <div class="search-wrap">
+            <span class="search-icon-left">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+            </span>
+            <input type="text" id="searchInput" placeholder="Search files and folders…" autocomplete="off">
+            <button class="search-clear" id="searchClear" aria-label="Clear search">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
             </button>
-            <input type="file" id="fileInput" multiple style="display: none;">
         </div>
 
-        <div class="drop-zone" id="dropZone">
-            <div class="drop-zone-icon">📁</div>
-            <div class="drop-zone-text">Drag and drop files here</div>
-            <div class="drop-zone-hint">or click to browse</div>
+        <span class="result-count" id="resultCount"></span>
+
+        <div class="sort-group">
+            <button class="sort-btn active" data-sort="name">name</button>
+            <button class="sort-btn" data-sort="size">size</button>
+            <button class="sort-btn" data-sort="date">date</button>
         </div>
 
-        <div class="upload-progress" id="uploadProgress">
-            <div id="uploadStatus">Uploading files...</div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
-            </div>
+        <button class="btn-upload" id="uploadBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="16 16 12 12 8 16"/>
+                <line x1="12" y1="12" x2="12" y2="21"/>
+                <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+            </svg>
+            Upload
+        </button>
+        <input type="file" id="fileInput" multiple style="display:none">
+    </div>
+
+    <!-- DROP ZONE -->
+    <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="Drop files here or click to upload">
+        <div class="dz-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/>
+                <path d="M12 12v9"/><path d="m8 17 4-5 4 5"/>
+            </svg>
         </div>
+        <div class="dz-text">Drop files to upload</div>
+        <div class="dz-hint">or click anywhere here to browse</div>
+    </div>
 
-        <div class="file-table-container">
-            {% if items %}
-            <table id="fileTable">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Size</th>
-                        <th>Modified</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="fileTableBody">
-                    {% for item in items %}
-                    <tr data-name="{{ item.name|lower }}">
-                        <td>
-                        <div class="file-name">
-                            <span class="file-icon">{{ '📁' if item.is_dir else '📄' }}</span>
-                        
-                            {% if item.is_dir %}
-                            <a href="/browse/{{ item.path }}" class="file-link">{{ item.name }}</a>
-                        
-                            {% else %}
-                        
-                            {% set ext = item.name.lower().split('.')[-1] %}
-                        
-                            {% if ext in ["mp3", "mp4"] %}
-                            <a href="/download/{{ item.path }}" class="file-link" target="_blank">
-                                {{ item.name }}
-                            </a>
-
-                            {% elif ext in ["md", "markdown", "json", "txt", "log", "png", "jpg", "jpeg", "gif", "svg", "webp"] %}
-                            <a href="/preview/{{ item.path }}" class="file-link">
-                                {{ item.name }}
-                            </a>
-
-                            {% else %}
-                            <a href="/download/{{ item.path }}" class="file-link">
-                                {{ item.name }}
-                            </a>
-                            {% endif %}
-                        
-                            {% endif %}
-                        </div>
-
-                        </td>
-                        <td>{{ format_size(item.size) if not item.is_dir else '-' }}</td>
-                        <td>{{ item.modified.strftime('%Y-%m-%d %H:%M') }}</td>
-                        <td>
-                            {% if not item.is_dir %}
-                            <a href="/download/{{ item.path }}">
-                                <button class="download-button">Download</button>
-                            </a>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <div class="empty-state">
-                <div class="empty-state-icon">📭</div>
-                <div>This directory is empty</div>
-            </div>
-            {% endif %}
+    <!-- UPLOAD PROGRESS -->
+    <div class="upload-progress" id="uploadProgress" role="status" aria-live="polite">
+        <div id="uploadStatus">uploading…</div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width:0%"></div>
         </div>
     </div>
 
-    <script>
-        const currentPath = "{{ current_path }}";
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const uploadProgress = document.getElementById('uploadProgress');
-        const progressFill = document.getElementById('progressFill');
-        const uploadStatus = document.getElementById('uploadStatus');
-        const searchInput = document.getElementById('searchInput');
+    <!-- FILE TABLE -->
+    <div class="file-table-container">
+        {% if items %}
 
-        // Drag and drop handlers
-        dropZone.addEventListener('click', () => fileInput.click());
+        <div class="stats-bar" id="statsBar"></div>
 
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('drag-over');
+        <table id="fileTable" aria-label="File listing">
+            <thead>
+                <tr>
+                    <th class="sortable" data-col="name">Name</th>
+                    <th class="sortable" data-col="size">Size</th>
+                    <th class="sortable" data-col="date">Modified</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="fileTableBody">
+                {% for item in items %}
+                {% set ext = item.name.lower().split('.')[-1] %}
+                <tr data-name="{{ item.name|lower }}"
+                    data-size="{{ item.size if not item.is_dir else -1 }}"
+                    data-date="{{ item.modified.strftime('%Y%m%d%H%M') }}"
+                    data-isdir="{{ '1' if item.is_dir else '0' }}">
+                    <td>
+                        <div class="file-name">
+                            {% if item.is_dir %}
+                            <span class="file-icon is-dir" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                                </svg>
+                            </span>
+                            <a href="/browse/{{ item.path }}" class="file-link">{{ item.name }}</a>
+
+                            {% elif ext in ['png','jpg','jpeg','gif','webp','svg'] %}
+                            <span class="file-icon is-img" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21 15 16 10 5 21"/>
+                                </svg>
+                            </span>
+                            <a href="/preview/{{ item.path }}" class="file-link">{{ item.name }}</a>
+                            <span class="ext-badge">{{ ext }}</span>
+
+                            {% elif ext in ['mp4','mov','avi','mkv','webm'] %}
+                            <span class="file-icon is-vid" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>
+                                </svg>
+                            </span>
+                            <a href="/preview/{{ item.path }}" class="file-link">{{ item.name }}</a>
+                            <span class="ext-badge">{{ ext }}</span>
+
+                            {% elif ext in ['zip','tar','gz','rar','7z','bz2'] %}
+                            <span class="file-icon is-arc" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/>
+                                    <line x1="10" y1="12" x2="14" y2="12"/>
+                                </svg>
+                            </span>
+                            <a href="/download/{{ item.path }}" class="file-link">{{ item.name }}</a>
+                            <span class="ext-badge">{{ ext }}</span>
+
+                            {% elif ext in ['c','cfg','cpp','css','csv','go','h','html','ini','java','js','json','jsx','log','md','markdown','py','rs','sh','toml','ts','tsx','txt','yaml','yml'] %}
+                            <span class="file-icon is-code" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+                                </svg>
+                            </span>
+                            <a href="/preview/{{ item.path }}" class="file-link">{{ item.name }}</a>
+                            <span class="ext-badge">{{ ext }}</span>
+
+                            {% elif ext == 'pdf' %}
+                            <span class="file-icon is-pdf" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14 2 14 8 20 8"/>
+                                    <line x1="9" y1="15" x2="15" y2="15"/>
+                                </svg>
+                            </span>
+                            <a href="/preview/{{ item.path }}" class="file-link">{{ item.name }}</a>
+                            <span class="ext-badge">pdf</span>
+
+                            {% else %}
+                            <span class="file-icon is-file" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
+                                    <polyline points="13 2 13 9 20 9"/>
+                                </svg>
+                            </span>
+                            <a href="/download/{{ item.path }}" class="file-link">{{ item.name }}</a>
+                            <span class="ext-badge">{{ ext }}</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="col-size">{{ format_size(item.size) if not item.is_dir else '—' }}</td>
+                    <td class="col-date">{{ item.modified.strftime('%Y-%m-%d  %H:%M') }}</td>
+                    <td>
+                        {% if not item.is_dir %}
+                        <a href="/download/{{ item.path }}" class="btn-dl" download>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="8 17 12 21 16 17"/>
+                                <line x1="12" y1="12" x2="12" y2="21"/>
+                                <path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/>
+                            </svg>
+                            Download
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                    <line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/>
+                </svg>
+            </div>
+            <h3>Nothing here yet</h3>
+            <p>This directory is empty — upload something above.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+    const currentPath = "{{ current_path }}";
+    const dropZone     = document.getElementById('dropZone');
+    const fileInput    = document.getElementById('fileInput');
+    const uploadBtn    = document.getElementById('uploadBtn');
+    const uploadProg   = document.getElementById('uploadProgress');
+    const progFill     = document.getElementById('progressFill');
+    const uploadStatus = document.getElementById('uploadStatus');
+    const searchInput  = document.getElementById('searchInput');
+    const searchClear  = document.getElementById('searchClear');
+    const resultCount  = document.getElementById('resultCount');
+    const tbody        = document.getElementById('fileTableBody');
+    const statsBar     = document.getElementById('statsBar');
+    const toastWrap    = document.getElementById('toastWrap');
+
+    /* ── Stats bar ── */
+    function buildStats() {
+        if (!tbody || !statsBar) return;
+        const rows  = [...tbody.querySelectorAll('tr')];
+        const dirs  = rows.filter(r => r.dataset.isdir === '1').length;
+        const files = rows.filter(r => r.dataset.isdir === '0').length;
+        statsBar.innerHTML = `
+            <span class="stat-pill">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                </svg>
+                ${dirs} folder${dirs !== 1 ? 's' : ''}
+            </span>
+            <span class="stat-pill">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/>
+                </svg>
+                ${files} file${files !== 1 ? 's' : ''}
+            </span>`;
+    }
+    buildStats();
+
+    /* ── Search ── */
+    searchInput.addEventListener('input', () => {
+        const term = searchInput.value.toLowerCase().trim();
+        let visible = 0;
+        [...(tbody?.querySelectorAll('tr') || [])].forEach(row => {
+            const match = row.dataset.name.includes(term);
+            row.style.display = match ? '' : 'none';
+            if (match) visible++;
         });
+        searchClear.classList.toggle('visible', term.length > 0);
+        resultCount.textContent = term ? `${visible} result${visible !== 1 ? 's' : ''}` : '';
+    });
 
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('drag-over');
-        });
+    searchClear.addEventListener('click', () => {
+        searchInput.value = '';
+        searchInput.dispatchEvent(new Event('input'));
+        searchInput.focus();
+    });
 
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('drag-over');
-            handleFiles(e.dataTransfer.files);
-        });
+    /* ── Sort ── */
+    let sortState = { col: 'name', dir: 'asc' };
 
-        fileInput.addEventListener('change', (e) => {
-            handleFiles(e.target.files);
-        });
-
-        // Search functionality
-        searchInput.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            const rows = document.querySelectorAll('#fileTableBody tr');
-
-            rows.forEach(row => {
-                const name = row.getAttribute('data-name');
-                if (name.includes(searchTerm)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        });
-
-        async function handleFiles(files) {
-            if (files.length === 0) return;
-
-            const formData = new FormData();
-            Array.from(files).forEach(file => {
-                formData.append('files', file);
-            });
-            formData.append('path', currentPath);
-
-            uploadProgress.classList.add('active');
-            progressFill.style.width = '0%';
-            uploadStatus.textContent = `Uploading ${files.length} file(s)...`;
-
-            try {
-                // Simulate progress
-                let progress = 0;
-                const progressInterval = setInterval(() => {
-                    progress += 5;
-                    if (progress <= 90) {
-                        progressFill.style.width = progress + '%';
-                    }
-                }, 100);
-
-                const response = await fetch('/upload', {
-                    method: 'POST',
-                    body: formData,
-                });
-
-                clearInterval(progressInterval);
-                progressFill.style.width = '100%';
-
-                const result = await response.json();
-
-                if (result.success > 0) {
-                    uploadStatus.textContent = `✅ Successfully uploaded ${result.success} file(s)`;
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000);
-                } else {
-                    uploadStatus.textContent = `❌ Upload failed`;
-                }
-            } catch (error) {
-                uploadStatus.textContent = `❌ Upload error: ${error.message}`;
-            } finally {
-                setTimeout(() => {
-                    uploadProgress.classList.remove('active');
-                    fileInput.value = '';
-                }, 2000);
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if (sortState.col === btn.dataset.sort) {
+                sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortState.col = btn.dataset.sort;
+                sortState.dir = 'asc';
             }
-        }
-    </script>
-</body>
+            applySort();
+        });
+    });
 
+    document.querySelectorAll('th.sortable').forEach(th => {
+        th.addEventListener('click', () => {
+            const col = th.dataset.col;
+            sortState.dir = sortState.col === col ? (sortState.dir === 'asc' ? 'desc' : 'asc') : 'asc';
+            sortState.col = col;
+            document.querySelectorAll('th.sortable').forEach(t => t.classList.remove('asc','desc'));
+            th.classList.add(sortState.dir);
+            applySort();
+        });
+    });
+
+    function applySort() {
+        if (!tbody) return;
+        const rows = [...tbody.querySelectorAll('tr')];
+        rows.sort((a, b) => {
+            let av, bv;
+            const { col, dir } = sortState;
+            if (col === 'name') { av = a.dataset.name; bv = b.dataset.name; return dir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av); }
+            if (col === 'size') { av = parseInt(a.dataset.size); bv = parseInt(b.dataset.size); }
+            if (col === 'date') { av = a.dataset.date; bv = b.dataset.date; }
+            return dir === 'asc' ? (av > bv ? 1 : -1) : (av < bv ? 1 : -1);
+        });
+        const dirs  = rows.filter(r => r.dataset.isdir === '1');
+        const files = rows.filter(r => r.dataset.isdir === '0');
+        [...dirs, ...files].forEach(r => tbody.appendChild(r));
+    }
+
+    /* ── Upload ── */
+    uploadBtn.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('click',  () => fileInput.click());
+    dropZone.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') fileInput.click(); });
+    dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop',      e => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleFiles(e.dataTransfer.files); });
+    fileInput.addEventListener('change',   e => handleFiles(e.target.files));
+
+    async function handleFiles(files) {
+        if (!files.length) return;
+        const fd = new FormData();
+        [...files].forEach(f => fd.append('files', f));
+        fd.append('path', currentPath);
+
+        uploadProg.classList.add('active');
+        progFill.style.width = '0%';
+        uploadStatus.textContent = `uploading ${files.length} file${files.length > 1 ? 's' : ''}…`;
+
+        try {
+            let pct = 0;
+            const ticker = setInterval(() => { pct = Math.min(pct + 4, 88); progFill.style.width = pct + '%'; }, 120);
+            const res  = await fetch('/upload', { method: 'POST', body: fd });
+            clearInterval(ticker);
+            progFill.style.width = '100%';
+            const data = await res.json();
+            if (data.success > 0) {
+                uploadStatus.textContent = `✓ uploaded ${data.success} file${data.success > 1 ? 's' : ''}`;
+                showToast(`${data.success} file${data.success > 1 ? 's' : ''} uploaded`, 'success');
+                setTimeout(() => location.reload(), 1200);
+            } else {
+                uploadStatus.textContent = '✗ upload failed';
+                showToast('Upload failed', 'error');
+            }
+        } catch (err) {
+            uploadStatus.textContent = `✗ ${err.message}`;
+            showToast(err.message, 'error');
+        } finally {
+            setTimeout(() => { uploadProg.classList.remove('active'); fileInput.value = ''; }, 2400);
+        }
+    }
+
+    /* ── Toasts ── */
+    function showToast(msg, type = 'success') {
+        const t = document.createElement('div');
+        t.className = `toast ${type}`;
+        const icon = type === 'success'
+            ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a6e3a1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+            : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f38ba8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+        t.innerHTML = icon + msg;
+        toastWrap.appendChild(t);
+        setTimeout(() => {
+            t.style.transition = 'opacity 0.3s';
+            t.style.opacity = '0';
+            setTimeout(() => t.remove(), 300);
+        }, 3500);
+    }
+</script>
+</body>
 </html>

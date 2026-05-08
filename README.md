@@ -8,18 +8,17 @@ Skyhook is a modern replacement for `python -m http.server` with authentication,
 
 - **🔐 Secure by Default**: Optional HTTP Basic Auth and self-signed SSL certificates
 - **📤 Upload Support**: Drag-and-drop file uploads via web interface
-- **⚡ Fast**: Launch a server in any directory in under 1 second
-- **🎨 Modern UI**: Beautiful, responsive web interface that works on mobile
+- **⚡ Fast**: Quick startup for ad-hoc sharing
+- **🎨 Modern UI**: Responsive web interface that works on mobile
+- **🧾 File Previews**: Preview text, JSON, Markdown, CSV, images, PDFs, and videos
 - **🔍 Search & Filter**: Quickly find files in large directories
 - **🛡️ Security Hardened**: Path sanitization prevents directory traversal attacks
 - **📱 Mobile Friendly**: Upload files from your phone's browser
 
 ## 🚀 Quick Start
 
-```bash
 ![PyPI](https://img.shields.io/pypi/v/skyhook-rayan)
 ![Python](https://img.shields.io/pypi/pyversions/skyhook-rayan)
-```
 
 ### Installation
 
@@ -171,6 +170,8 @@ Skyhook provides a RESTful API:
 | `/`                | GET    | List root directory     |
 | `/browse/{path}`   | GET    | List specific directory |
 | `/download/{path}` | GET    | Download a file         |
+| `/preview/{path}`  | GET    | Preview a file          |
+| `/raw/{path}`      | GET    | Inline file for previews |
 | `/upload`          | POST   | Upload files            |
 | `/health`          | GET    | Health check            |
 
@@ -225,30 +226,11 @@ skyhook/
 
 ## 📊 Performance
 
-- **Memory footprint**: < 100MB during 1GB file transfers
-- **Startup time**: < 1 second
-- **Concurrent uploads**: Supported via async I/O
-- **Large files**: Handled efficiently with chunked streaming
+- **Streaming I/O**: Uploads and downloads are chunked to avoid loading entire files in memory
+- **Startup**: Typically fast for small directories (exact time depends on machine and disk)
+- **Concurrency**: Supports multiple simultaneous uploads and downloads
+- **Preview limit**: Previews are limited to 1 MB per file to keep pages responsive
 
-## 🗺️ Roadmap
-
-### v1.1 (Planned)
-
-- [ ] Support for `.zip` folder downloads
-- [ ] Directory compression on-the-fly
-- [ ] File preview for common formats
-
-### v1.2 (Planned)
-
-- [ ] Searchable file indexing for deep directories
-- [ ] Advanced filtering (by date, size, type)
-- [ ] Thumbnail generation for images
-
-### v2.0 (Future)
-
-- [ ] P2P mode using WebRTC (bypass firewalls)
-- [ ] End-to-end encryption
-- [ ] Multi-user support with permissions
 
 ## 🤝 Contributing
 
@@ -284,4 +266,4 @@ MIT License - see LICENSE file for details
 
 ---
 
-Made with ❤️ by the Rayan
+Made with ❤️ by Rayan

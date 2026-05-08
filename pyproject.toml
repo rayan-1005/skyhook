@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "skyhook-rayan"
-version = "1.1.1"
+version = "1.2.1"
 description = "A secure, zero-config CLI file server with upload capabilities and encrypted transport"
 readme = "README.md"
 requires-python = ">=3.9"
